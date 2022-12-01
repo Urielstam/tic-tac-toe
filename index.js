@@ -28,7 +28,15 @@ const playerFactory = (name, mark) => {
     const getName = () => name;
     const getMark = () => mark;
 
-    return {getName, getMark}
+    const playerMove = (cell) => {
+        
+        if(!cell.innerText) {
+            gameboardModule.setGameboard(mark);
+            cell.innerText = mark;
+        }
+    }
+
+    return {getName, getMark, playerMove}
 
 };
 
@@ -36,38 +44,45 @@ const playerOne = playerFactory('Player One', 'X');
 
 const playerTwo = playerFactory('Player Two', 'O');
 
-console.log(playerOne.getMark());
-
-console.log(playerTwo.getName());
-
-
-// Game Flow Logic:
-// 
-
 
 // TODO Create object to store flow of game
 
-const gameFLow = {
+const game = (() => {
+    'use strict';
+    
+    
+    const getCurrentPlayer = () => {     
+        let currentPlayer = playerOne;
+        let gameArr = gameboardModule.getGameboard();
 
-};
-
-// * Have as little global code as possible
-
-
-function renderContent() {
-    const cells = document.querySelectorAll('.cell');
-
-    let array = gameboardModule.getGameboard();
-
-    for(let i = 0; i < cells.length; i++) {
-        (function () {
-            this.addEventListener('click', (e) => {
-                if(!this.innerText) {
-                    this.innerText = 'X'
-                }
-            })
-        }).call(cells[i])
+        if(gameArr.length < 1) {
+            currentPlayer = playerOne; 
+        }
+        else if(gameArr.length >= 1) {
+            if(gameArr[gameArr.length - 1] === "X") {
+                currentPlayer = playerTwo;
+            } else if(gameArr[gameArr.length - 1] === "O") {
+                currentPlayer = playerOne;
+            }
+        } 
+        return currentPlayer;
     }
-}
 
-renderContent()
+    const displayMark = () => {
+        const grid = document.querySelector('.grid');
+    
+        grid.addEventListener('click', (e) => {
+            if(e.target.classList.contains('cell')) {
+                getCurrentPlayer().playerMove(e.target)
+            }
+        });
+    }
+    
+    return {
+        getCurrentPlayer: getCurrentPlayer,
+        displayMark: displayMark
+    }
+
+})();
+
+game.displayMark();
