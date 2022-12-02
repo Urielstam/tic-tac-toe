@@ -1,12 +1,13 @@
 // TODO Create tic tac toe Game
 
-// TODO Store the gameboard in the Gameboard object using Module
-
 const gameboardModule = (() => {
     'use strict';
 
     let _gameboard = [];
 
+    const resetGameboard = () => {
+        let _gameboard = [];
+    }
     const getGameboard = () => {
          return _gameboard
     } 
@@ -15,13 +16,13 @@ const gameboardModule = (() => {
         _gameboard.push(mark);
     }
 
+
     return {
         getGameboard: getGameboard,
-        setGameboard: setGameboard
+        setGameboard: setGameboard,
+        resetGameboard: resetGameboard
     };
 })();
-
-// TODO Store players in Player object using FF
 
 const playerFactory = (name, mark) => {
 
@@ -40,10 +41,10 @@ const playerFactory = (name, mark) => {
 
 };
 
+
 const playerOne = playerFactory('Player One', 'X');
 
 const playerTwo = playerFactory('Player Two', 'O');
-
 
 // TODO Create object to store flow of game
 
@@ -74,8 +75,88 @@ const game = (() => {
         grid.addEventListener('click', (e) => {
             if(e.target.classList.contains('cell')) {
                 getCurrentPlayer().playerMove(e.target)
+                checkWinner(e.target);
             }
         });
+    }
+
+    let rows = [[], [], []];
+    let colomns = [[], [], []];
+    let diagonals = [[], []]; // 1, 3, 5, 7, 9
+    let winner;
+    
+    const checkWinner = (cell) => {
+
+        let cellNum = Number(cell.id);
+
+        const addToCol= (mark) => {
+            if(cellNum === 1 || cellNum === 4 || cellNum === 7) {
+                colomns[0].push(mark);
+            }
+            else if(cellNum === 2 || cellNum === 5 || cellNum === 8) {
+                colomns[1].push(mark);
+            }
+            else {
+                colomns[2].push(mark);
+            }
+        }
+
+        const addToDiag = (mark) => {
+            if(cellNum === 5) {
+                diagonals[0].push(mark);
+                diagonals[1].push(mark);
+            } 
+            else if (cellNum === 1 || cellNum === 9) {
+                diagonals[0].push(mark);
+            }
+            else if(cellNum === 3 || cellNum === 7) {
+                diagonals[1].push(mark);
+            }
+        }
+
+        const addToRow = (() => {
+            if(cellNum <= 3) {
+                rows[0].push(cell.innerText);
+                addToCol(cell.innerText);
+                addToDiag(cell.innerText);
+            }
+            else if(cellNum <= 6) {
+                rows[1].push(cell.innerText);
+                addToCol(cell.innerText);
+                addToDiag(cell.innerText);
+            }
+            else {
+                rows[2].push(cell.innerText);
+                addToCol(cell.innerText);
+                addToDiag(cell.innerText);
+            }
+        })();
+        
+        const allEqual = (arr) => {
+            return arr.every(val => val === arr[0]);
+        }
+        
+        const outputWinner = (arrs) => {
+            for(let arr of arrs) {
+                if(arr.length === 3) {
+                    if(allEqual(arr)) {
+                        if(arr[0] === "X") {
+                            winner = playerOne.getName();
+                            console.log(`Congrats! ${winner} won!`)
+                        } else {
+                            winner = playerTwo.getName();
+                            console.log(`Congrats! ${winner} won!`)
+                        }
+                    }
+                }
+            }
+        }
+
+        outputWinner(rows);
+        outputWinner(colomns);
+        outputWinner(diagonals);
+        
+
     }
     
     return {
