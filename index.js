@@ -6,7 +6,7 @@ const gameboardModule = (() => {
     let _gameboard = [];
 
     const resetGameboard = () => {
-        let _gameboard = [];
+        _gameboard = [];
     }
     const getGameboard = () => {
          return _gameboard
@@ -37,14 +37,22 @@ const playerFactory = (name, mark) => {
         }
     }
 
-    return {getName, getMark, playerMove}
+    const isWinner = () => {
+        console.log(name);
+        const gameOver = document.querySelector('.display-winner'); 
+        const displayIsWinner = document.querySelector('.display-winner :nth-child(2)');
+        displayIsWinner.innerText = `Winner is ${name}`;
+        gameOver.classList.remove('hidden');
+    }
+
+    return {getName, getMark, playerMove, isWinner}
 
 };
 
 
-const playerOne = playerFactory('Player One', 'X');
+const playerOne = playerFactory('X', 'X');
 
-const playerTwo = playerFactory('Player Two', 'O');
+const playerTwo = playerFactory('O', 'O');
 
 // TODO Create object to store flow of game
 
@@ -136,16 +144,17 @@ const game = (() => {
             return arr.every(val => val === arr[0]);
         }
         
+        
         const outputWinner = (arrs) => {
             for(let arr of arrs) {
                 if(arr.length === 3) {
                     if(allEqual(arr)) {
                         if(arr[0] === "X") {
-                            winner = playerOne.getName();
-                            console.log(`Congrats! ${winner} won!`)
+                            playerOne.isWinner()
+                            endGame();
                         } else {
-                            winner = playerTwo.getName();
-                            console.log(`Congrats! ${winner} won!`)
+                            playerTwo.isWinner()
+                            endGame();
                         }
                     }
                 }
@@ -155,13 +164,26 @@ const game = (() => {
         outputWinner(rows);
         outputWinner(colomns);
         outputWinner(diagonals);
-        
+    }
 
+    const endGame = () => {  
+
+        rows = [[], [], []];
+        colomns = [[], [], []];
+        diagonals = [[], []];
+        gameboardModule.resetGameboard();
+
+        const cells = document.querySelectorAll('.cell');
+        for (let cell of cells) {
+            cell.innerText = '';
+        }
+        
     }
     
     return {
         getCurrentPlayer: getCurrentPlayer,
-        displayMark: displayMark
+        displayMark: displayMark,
+        winner: winner
     }
 
 })();
