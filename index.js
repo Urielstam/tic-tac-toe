@@ -39,10 +39,7 @@ const playerFactory = (name, mark) => {
 
     const isWinner = () => {
         console.log(name);
-        const gameOver = document.querySelector('.display-winner'); 
-        const displayIsWinner = document.querySelector('.display-winner :nth-child(2)');
-        displayIsWinner.innerText = `Winner is ${name}`;
-        gameOver.classList.remove('hidden');
+        
     }
 
     return {getName, getMark, playerMove, isWinner}
@@ -60,32 +57,83 @@ const game = (() => {
     'use strict';
     
     
-    const getCurrentPlayer = () => {     
-        let currentPlayer = playerOne;
-        let gameArr = gameboardModule.getGameboard();
+    let player;
 
+    const getCurrentPlayer = (e) => { 
+        restart();
+        let gameArr = gameboardModule.getGameboard();
+        
         if(gameArr.length < 1) {
-            currentPlayer = playerOne; 
-        }
-        else if(gameArr.length >= 1) {
-            if(gameArr[gameArr.length - 1] === "X") {
-                currentPlayer = playerTwo;
-            } else if(gameArr[gameArr.length - 1] === "O") {
-                currentPlayer = playerOne;
+            if(e.target.id === "O") {
+                console.log(e.target);
+                player = playerTwo;
+            } else if (e.target.id === "X") {
+                console.log(e.target);
+                player = playerOne;
+            } else {
+                player = playerOne;
             }
-        } 
-        return currentPlayer;
+        }
     }
 
-    const displayMark = () => {
-        const grid = document.querySelector('.grid');
-    
-        grid.addEventListener('click', (e) => {
-            if(e.target.classList.contains('cell')) {
-                getCurrentPlayer().playerMove(e.target)
-                checkWinner(e.target);
+    const getPlayer = () => {
+        let gameArr = gameboardModule.getGameboard();
+        if(!player) {
+            player = playerOne;
+        }
+        if(gameArr.length >= 1) {
+            if(gameArr[gameArr.length - 1] === "X") {
+                player = playerTwo;
+            } else if(gameArr[gameArr.length - 1] === "O") {
+                player = playerOne;
             }
-        });
+        } 
+        return player;
+    }
+
+    const grid = document.querySelector('.grid');
+    const chosenPlayer = document.querySelector('.choose-player');
+    const displayIsWinner = document.querySelector('.display-winner'); 
+
+
+    const endGame = (name) => {  
+
+        rows = [[], [], []];
+        colomns = [[], [], []];
+        diagonals = [[], []];
+        gameboardModule.resetGameboard();
+        grid.removeEventListener('click', displayMark);  
+    }
+
+    const startGame = () => {
+
+        //getCurrentPlayer 
+        
+        grid.addEventListener('click', displayMark);
+        chosenPlayer.addEventListener('click', getCurrentPlayer);
+    }
+
+    const restart = () => {
+        const cells = document.querySelectorAll('.cell');
+        for(let cell of cells) {
+            cell.innerText = '';
+        }
+
+        rows = [[], [], []];
+        colomns = [[], [], []];
+        diagonals = [[], []];
+        gameboardModule.resetGameboard();
+        grid.addEventListener('click', displayMark);
+
+        displayIsWinner.classList.add('hidden'); 
+
+    }
+
+    const displayMark = (e) => {
+        if(e.target.classList.contains('cell')) {
+            getPlayer().playerMove(e.target)
+            checkWinner(e.target);
+        }
     }
 
     let rows = [[], [], []];
@@ -144,21 +192,29 @@ const game = (() => {
             return arr.every(val => val === arr[0]);
         }
         
-        
+        const displayWinner = (name) => {
+            displayIsWinner.innerText = `Winner is ${name}`;
+            displayIsWinner.classList.remove('hidden'); 
+
+        }
         const outputWinner = (arrs) => {
+        
             for(let arr of arrs) {
                 if(arr.length === 3) {
                     if(allEqual(arr)) {
                         if(arr[0] === "X") {
-                            playerOne.isWinner()
+                            displayWinner(playerOne.getName());
                             endGame();
                         } else {
-                            playerTwo.isWinner()
+                            displayWinner(playerTwo.getName());
                             endGame();
                         }
                     }
                 }
             }
+            if(gameboardModule.getGameboard().length === 9) {
+                displayWinner("TIE");
+            } 
         }
 
         outputWinner(rows);
@@ -166,26 +222,14 @@ const game = (() => {
         outputWinner(diagonals);
     }
 
-    const endGame = () => {  
 
-        rows = [[], [], []];
-        colomns = [[], [], []];
-        diagonals = [[], []];
-        gameboardModule.resetGameboard();
-
-        const cells = document.querySelectorAll('.cell');
-        for (let cell of cells) {
-            cell.innerText = '';
-        }
-        
-    }
     
     return {
         getCurrentPlayer: getCurrentPlayer,
-        displayMark: displayMark,
+        startGame: startGame,
         winner: winner
     }
 
 })();
 
-game.displayMark();
+game.startGame();
