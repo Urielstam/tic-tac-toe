@@ -52,12 +52,43 @@ const playerOne = playerFactory('X', 'X');
 const playerTwo = playerFactory('O', 'O');
 
 // TODO Create object to store flow of game
+// TODO Create AI for game
 
 const game = (() => {
     'use strict';
-    
+
+    // Display to DOM variables
+    const grid = document.querySelector('.grid');
+    const cells = document.querySelectorAll('.cell');
+    const chosenPlayer = document.querySelector('.choose-player');
+    const displayIsWinner = document.querySelector('.display-winner'); 
+    const checkbox = document.querySelector('input[type=checkbox]');
+
+    // Checking for 3 variables
+    let rows = [[], [], []];
+    let colomns = [[], [], []];
+    let diagonals = [[], []]; // 1, 3, 5, 7, 9
+    let winner;
     
     let player;
+    let AI = false;
+
+    const getAI = () => {
+        let gameArr = gameboardModule.getGameboard();
+        let cellArr = [];
+        for(let cell of cells) {
+            if(!cell.innerText)  {
+                cellArr.push(cell.id)
+            }
+        }
+        let randomCell = cellArr[Math.floor(Math.random()*cellArr.length)];
+        for(let cell of cells) {
+            if(cell.id === randomCell ) {
+                getPlayer().playerMove(cell);
+                checkWinner(cell);
+            }
+        }
+    }
 
     const getCurrentPlayer = (e) => { 
         restart();
@@ -65,10 +96,8 @@ const game = (() => {
         
         if(gameArr.length < 1) {
             if(e.target.id === "O") {
-                console.log(e.target);
                 player = playerTwo;
             } else if (e.target.id === "X") {
-                console.log(e.target);
                 player = playerOne;
             } else {
                 player = playerOne;
@@ -91,9 +120,7 @@ const game = (() => {
         return player;
     }
 
-    const grid = document.querySelector('.grid');
-    const chosenPlayer = document.querySelector('.choose-player');
-    const displayIsWinner = document.querySelector('.display-winner'); 
+    
 
 
     const endGame = (name) => {  
@@ -106,15 +133,21 @@ const game = (() => {
     }
 
     const startGame = () => {
-
         //getCurrentPlayer 
         
         grid.addEventListener('click', displayMark);
         chosenPlayer.addEventListener('click', getCurrentPlayer);
+        checkbox.addEventListener('click', (e) => {
+            if(checkbox.checked) {
+                AI = true;
+            } else {
+                AI = false;
+            }
+        })
+
     }
 
     const restart = () => {
-        const cells = document.querySelectorAll('.cell');
         for(let cell of cells) {
             cell.innerText = '';
         }
@@ -130,16 +163,24 @@ const game = (() => {
     }
 
     const displayMark = (e) => {
-        if(e.target.classList.contains('cell')) {
-            getPlayer().playerMove(e.target)
-            checkWinner(e.target);
+        if(!AI) {
+            if(e.target.classList.contains('cell')) {
+                getPlayer().playerMove(e.target)
+                checkWinner(e.target);
+            }
+        }
+        else if(AI) {
+            if(e.target.classList.contains('cell')) {
+                getPlayer().playerMove(e.target);
+                checkWinner(e.target);
+                if(displayIsWinner.classList.contains('hidden')) {
+                    setTimeout(getAI, 200);
+                }
+            }
         }
     }
 
-    let rows = [[], [], []];
-    let colomns = [[], [], []];
-    let diagonals = [[], []]; // 1, 3, 5, 7, 9
-    let winner;
+   
     
     const checkWinner = (cell) => {
 
@@ -197,8 +238,8 @@ const game = (() => {
             displayIsWinner.classList.remove('hidden'); 
 
         }
+
         const outputWinner = (arrs) => {
-        
             for(let arr of arrs) {
                 if(arr.length === 3) {
                     if(allEqual(arr)) {
@@ -221,8 +262,6 @@ const game = (() => {
         outputWinner(colomns);
         outputWinner(diagonals);
     }
-
-
     
     return {
         getCurrentPlayer: getCurrentPlayer,
