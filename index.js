@@ -63,6 +63,7 @@ const game = (() => {
     const chosenPlayer = document.querySelector('.choose-player');
     const displayIsWinner = document.querySelector('.display-winner'); 
     const checkbox = document.querySelector('input[type=checkbox]');
+    const o = document.querySelector("#O");
 
     // Checking for 3 variables
     let rows = [[], [], []];
@@ -84,8 +85,13 @@ const game = (() => {
         let randomCell = cellArr[Math.floor(Math.random()*cellArr.length)];
         for(let cell of cells) {
             if(cell.id === randomCell ) {
-                getPlayer().playerMove(cell);
-                checkWinner(cell);
+                if(gameArr < 1) {
+                    playerOne.playerMove(cell);
+                    checkWinner(cell);
+                } else {
+                    getPlayer().playerMove(cell);
+                    checkWinner(cell);
+                }
             }
         }
     }
@@ -134,17 +140,11 @@ const game = (() => {
 
     const startGame = () => {
         //getCurrentPlayer 
-        
-        grid.addEventListener('click', displayMark);
+    
         chosenPlayer.addEventListener('click', getCurrentPlayer);
-        checkbox.addEventListener('click', (e) => {
-            if(checkbox.checked) {
-                AI = true;
-            } else {
-                AI = false;
-            }
-        })
-
+        checkbox.addEventListener('click', e => checkbox.checked ? AI = true : AI = false);
+        grid.addEventListener('click', displayMark);
+        chosenPlayer.addEventListener('click', displayMark);
     }
 
     const restart = () => {
@@ -170,7 +170,10 @@ const game = (() => {
             }
         }
         else if(AI) {
-            if(e.target.classList.contains('cell')) {
+            if(e.target.classList.contains('O')) {
+                setTimeout(getAI, 200);
+            }
+            else if(e.target.classList.contains('cell')) {
                 getPlayer().playerMove(e.target);
                 checkWinner(e.target);
                 if(displayIsWinner.classList.contains('hidden')) {
