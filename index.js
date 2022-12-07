@@ -30,11 +30,8 @@ const playerFactory = (name, mark) => {
     const getMark = () => mark;
 
     const playerMove = (cell) => {
-        
-        if(!cell.innerText) {
-            gameboardModule.setGameboard(mark);
-            cell.innerText = mark;
-        }
+        gameboardModule.setGameboard(mark);
+        cell.innerText = mark;
     }
 
     const isWinner = () => {
@@ -165,8 +162,11 @@ const game = (() => {
     const displayMark = (e) => {
         if(!AI) {
             if(e.target.classList.contains('cell')) {
-                getPlayer().playerMove(e.target)
-                checkWinner(e.target);
+                if(!e.target.innerText) {
+                    getPlayer().playerMove(e.target)
+                    console.log(gameboardModule.getGameboard())
+                    checkWinner(e.target);
+                }
             }
         }
         else if(AI) {
@@ -174,10 +174,12 @@ const game = (() => {
                 setTimeout(getAI, 200);
             }
             else if(e.target.classList.contains('cell')) {
-                getPlayer().playerMove(e.target);
-                checkWinner(e.target);
-                if(displayIsWinner.classList.contains('hidden')) {
-                    setTimeout(getAI, 200);
+                if(!e.target.innerText) {
+                    getPlayer().playerMove(e.target);
+                    checkWinner(e.target);
+                    if(displayIsWinner.classList.contains('hidden')) {
+                        setTimeout(getAI, 200);
+                    }
                 }
             }
         }
@@ -275,3 +277,4 @@ const game = (() => {
 })();
 
 game.startGame();
+
