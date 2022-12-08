@@ -61,6 +61,9 @@ const game = (() => {
     const displayIsWinner = document.querySelector('.display-winner'); 
     const checkbox = document.querySelector('input[type=checkbox]');
     const o = document.querySelector("#O");
+    const x = document.querySelector("#X");
+    const reBtn = document.querySelector('.restart');
+    const toggleBtn = document.querySelector('.toggle');
 
     // Checking for 3 variables
     let rows = [[], [], []];
@@ -142,6 +145,31 @@ const game = (() => {
         checkbox.addEventListener('click', e => checkbox.checked ? AI = true : AI = false);
         grid.addEventListener('click', displayMark);
         chosenPlayer.addEventListener('click', displayMark);
+        o.addEventListener('click', (e) => {
+            if(!x.classList.contains('clicked')) {
+                o.classList.toggle('clicked');
+            } else {
+                x.classList.remove('clicked');
+                o.classList.toggle('clicked');
+            }
+        });
+        x.addEventListener('click', (e) => {
+            if(!o.classList.contains('clicked')) {
+                x.classList.toggle('clicked');
+            } else {
+                o.classList.remove('clicked');
+                x.classList.toggle('clicked');
+            }
+        })
+        reBtn.addEventListener('click', (e) => {
+            o.classList.remove('clicked');
+            x.classList.remove('clicked');
+        });
+        toggleBtn.addEventListener('click', (e) => {
+            o.classList.remove('clicked');
+            x.classList.remove('clicked');
+        });
+
     }
 
     const restart = () => {
@@ -239,8 +267,13 @@ const game = (() => {
         }
         
         const displayWinner = (name) => {
-            displayIsWinner.innerText = `Winner is ${name}`;
-            displayIsWinner.classList.remove('hidden'); 
+            if(name === "Draw") {
+                displayIsWinner.innerText = `Draw`;
+                displayIsWinner.classList.remove('hidden'); 
+            } else {
+                displayIsWinner.innerText = `Winner is ${name}`;
+                displayIsWinner.classList.remove('hidden'); 
+            }
 
         }
 
@@ -259,7 +292,7 @@ const game = (() => {
                 }
             }
             if(gameboardModule.getGameboard().length === 9) {
-                displayWinner("TIE");
+                displayWinner("Draw");
             } 
         }
 
